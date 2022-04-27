@@ -1,0 +1,58 @@
+import cv2  #OpenCV包
+import numpy as np
+import os
+
+def getdata():
+	# 利用numpy的fromfile函数读取raw文件，并指定数据格式
+	# img=np.fromfile(r'C:\Users\L00249\Desktop\ADS_CMD_sim\spectra.raw')
+	content = []
+	content2 = []
+	point = 0
+
+	im2 = open(r'C:\Users\L00249\Desktop\ADS_CMD_sim\spectra.raw', encoding='utf8')
+	with open(r'C:\Users\L00249\Desktop\ADS_CMD_sim\spectra.raw', 'r', encoding='utf-8') as fr, open('a.log', 'w', encoding='utf-8') as fd:
+		for text in fr.readlines():
+			if text.split():  # 去掉txt里面的空白行，并保存到新的文件中
+				fd.write(text)
+
+	# 提取有价值的数据
+	with open('a.log', 'r+', encoding='utf-8') as fd:
+		all = fd.readlines()
+		for txt in all:
+			content.append(txt.strip().split(","))  #
+
+	for a in range(len(content)):
+		if "Values:" in str(content[a]):
+			point = a
+			break
+
+	content2 = content[point + 1:len(content)]
+	# print(content2)
+
+	length = 7  # 这是仿真结果的行数
+	# 将字符串转变为float数据
+	for i in range(len(content2)//length):
+		for j in range(1, length):
+			content2[i * length + j][0] = float(content2[i * length + j][0])
+			content2[i * length + j][1] = float(content2[i * length + j][1])
+
+
+	return content2[length * 17 + 3],content2[length * 23 + 1],content2[length * 28 + 1]
+
+# Current_dir = os.getcwd() #获取当前目录
+# os.chdir('D:/') #定位到新的目录，请根据你自己文件的位置做相应的修改
+#
+# def dataprocess(x):
+# 	return -20*np.log10((x[0]**2+x[1]**2)**0.5)
+
+def dataprocess(x,y,z):
+	a = -20 * np.log10((x[0]**2 + x[1]**2)**0.5)
+	b = -20 * np.log10((y[0]**2 + y[1]**2)**0.5)
+	c = -20 * np.log10((z[0]**2 + z[1]**2)**0.5)
+	alpha = 1.
+	beta = 0.5
+	d = alpha * (-(a - 15) ** 2) - beta * ((b - 15) ** 2 + (c - 15) ** 2) + 0.01
+	return d
+
+if __name__ == '__main__':
+	print(1)
